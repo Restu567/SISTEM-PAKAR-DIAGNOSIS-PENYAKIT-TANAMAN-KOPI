@@ -1,0 +1,103 @@
+<?php
+// ===============================
+// DATA GEJALA
+// ===============================
+$gejala = [
+    "G01" => "Daun timbul bercak kuning kemudian coklat",
+    "G03" => "Pangkal batang busuk dan akhirnya mengering",
+    "G05" => "Akar tertutup kerak tanah dan tampak benang jamur coklat",
+    "G08" => "Daun layu",
+    "G09" => "Membentuk bintil pada daun",
+    "G10" => "Akar membusuk",
+    "G15" => "Daun bercak-bercak bulat",
+    "G28" => "Pada bercak tua terdapat pusat putih ke abu-abu",
+    "G29" => "Di bawah cabang terdapat jamur merah jambu",
+    "G33" => "Jamur putih pada permukaan akar",
+    "G37" => "Buah rontok",
+    "G48" => "Serbuk jingga di balik daun",
+    "G49" => "Bercak dikelilingi halo kuning",
+    "G50" => "Bercak hitam di daun"
+];
+
+// ===============================
+// DATA PENYAKIT
+// ===============================
+$penyakit = [
+    "P01" => "Karat Daun",
+    "P02" => "Jamur Upas",
+    "P03" => "Bercak Daun",
+    "P05" => "Jamur Akar"
+];
+
+// ===============================
+// DATA SOLUSI
+// ===============================
+$solusi = [
+    "P01" => "Pemupukan berimbang, pemangkasan, pengaturan naungan, penyemprotan fungisida",
+    "P02" => "Memotong bagian terinfeksi dan mengurangi kelembaban",
+    "P03" => "Pemangkasan daun terserang dan penggunaan fungisida",
+    "P05" => "Perbaikan drainase dan sanitasi lahan"
+];
+
+// ===============================
+// RULE (FORWARD CHAINING)
+// ===============================
+$rules = [
+    "P01" => ["G01", "G49", "G48", "G15"],
+    "P02" => ["G09", "G03", "G29", "G37"],
+    "P03" => ["G15", "G28", "G50", "G49"],
+    "P05" => ["G10", "G33", "G05", "G08"]
+];
+
+// ===============================
+// PROSES DIAGNOSA
+// ===============================
+$hasil = "";
+
+if (isset($_POST['diagnosa'])) {
+    $pilihan = $_POST['gejala'] ?? [];
+
+    foreach ($rules as $kodePenyakit => $ruleGejala) {
+        if (count(array_diff($ruleGejala, $pilihan)) == 0) {
+            $hasil = "<b>Diagnosis:</b> " . $penyakit[$kodePenyakit] . "<br>";
+            $hasil .= "<b>Solusi:</b> " . $solusi[$kodePenyakit];
+            break;
+        }
+    }
+
+    if ($hasil == "") {
+        $hasil = "Penyakit tidak dapat diidentifikasi berdasarkan gejala yang dipilih.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistem Pakar Tanaman Kopi</title>
+    <style>
+        body { font-family: Arial; background: #eef; padding: 20px; }
+        h2 { color: #2c3e50; }
+        .box { background: white; padding: 20px; border-radius: 8px; width: 600px; }
+        button { padding: 10px 20px; background: green; color: white; border: none; }
+    </style>
+</head>
+
+<body>
+<div class="box">
+<h2>Sistem Pakar Diagnosis Penyakit Tanaman Kopi</h2>
+
+<form method="post">
+<?php foreach ($gejala as $kode => $nama): ?>
+    <input type="checkbox" name="gejala[]" value="<?= $kode ?>"> <?= $kode ?> - <?= $nama ?><br>
+<?php endforeach; ?>
+
+<br>
+<button type="submit" name="diagnosa">Diagnosa</button>
+</form>
+
+<hr>
+<p><?= $hasil ?></p>
+</div>
+</body>
+</html>
